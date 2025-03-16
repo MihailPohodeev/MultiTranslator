@@ -3,14 +3,15 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
-
 #include <errno.h>
+
 #include <set>
 #include <string>
 #include <iostream>
 #include <algorithm>
 #include <vector>
 #include <thread>
+#include <mutex>
 
 #include <csv.h>
 #include <thread_funcs.hxx>
@@ -20,10 +21,13 @@
 
 std::vector<Client*> clients;
 
-std::set<stucts::node*, stucts::alphabeticNodeComparator> english_dictionary;
-std::set<stucts::node*, stucts::alphabeticNodeComparator> russian_dictionary;
-std::set<stucts::node*, stucts::alphabeticNodeComparator> spanish_dictionary;
-std::set<stucts::node*, stucts::alphabeticNodeComparator> german_dictionary;
+std::set<structs::node*, structs::alphabeticNodeComparator> english_dictionary;
+std::set<structs::node*, structs::alphabeticNodeComparator> russian_dictionary;
+std::set<structs::node*, structs::alphabeticNodeComparator> spanish_dictionary;
+std::set<structs::node*, structs::alphabeticNodeComparator> german_dictionary;
+
+std::mutex sets_guard;
+std::mutex dictionary_guard;
 
 int main()
 {
@@ -34,16 +38,16 @@ int main()
 	std::string spanish;
 	std::string german;
 	while(in.read_row(english, russian, spanish, german)){
-		stucts::node* current_english_node = new stucts::node;
+		structs::node* current_english_node = new structs::node;
 		current_english_node->_word = english;
 
-		stucts::node* current_russian_node = new stucts::node;
+		structs::node* current_russian_node = new structs::node;
 		current_russian_node->_word = russian;
 
-		stucts::node* current_spanish_node = new stucts::node;
+		structs::node* current_spanish_node = new structs::node;
 		current_spanish_node->_word = spanish;
 
-		stucts::node* current_german_node = new stucts::node;
+		structs::node* current_german_node = new structs::node;
 		current_german_node->_word = german;
 
 		current_english_node->english = current_english_node;
@@ -116,13 +120,13 @@ int main()
 	}
 
 	// clean memory.
-	for (stucts::node* x : english_dictionary)
+	for (structs::node* x : english_dictionary)
 		delete x;
-	for (stucts::node* x : russian_dictionary)
+	for (structs::node* x : russian_dictionary)
 		delete x;
-	for (stucts::node* x : spanish_dictionary)
+	for (structs::node* x : spanish_dictionary)
 		delete x;
-	for (stucts::node* x : german_dictionary)
+	for (structs::node* x : german_dictionary)
 		delete x;
 
 	return 0;

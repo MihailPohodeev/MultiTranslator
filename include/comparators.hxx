@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace stucts
+namespace structs
 {
 	struct node
 	{
