@@ -31,12 +31,13 @@ class Client
 	std::string incomplete_string_;
 	std::queue<std::string> requests_queue_;
 	int socket_;
+	bool should_destroy;
 
 	int size_of_data_;
 	char* data_;
 public:
 	// constructor.
-	Client(int sock) : socket_(sock)
+	Client(int sock) : socket_(sock), should_destroy(false)
 	{
 		size_of_data_ = 1024;
 		data_ = new char[size_of_data_];
@@ -72,12 +73,17 @@ public:
 				std::cerr << "Can't receive data.\n";
 				return "";
 			}
-		
-			if (receivedBytes == 1)
+			else if (receivedBytes == 0)
+			{
+				should_destroy = true;
+				return "";
+			}	
+			else if (receivedBytes == 1)
 			{
 				std::cerr << "Received empty string!\n";
 				return "";
 			}
+
 			std::string str(data_, receivedBytes);
 			str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
 			str.erase(std::remove(str.begin(), str.end(), '\n'), str.end());
@@ -109,9 +115,11 @@ public:
 
 	void handle()
 	{
-		while(1)
+		while(!should_destroy)
 		{
 			std::string request = dequeue_request();
+			if (should_destroy)
+				break;
 			if (request == "")
 				continue;
 			
